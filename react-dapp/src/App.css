@@ -68,3 +68,8 @@
 .checked {
   color: rgb(230, 150, 2);
 }
+
+.Hotel-information {
+  margin-top: 12px;
+  font-size: 20px;
+}

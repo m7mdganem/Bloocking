@@ -10,19 +10,23 @@ async function main() {
 
   const Hotel = await ethers.getContractFactory("HotelBooking");
   for (let i = 1; i <= HotelsInfo.hotels.length; i++) {
+    
     const hotelName = HotelsInfo.hotels[i-1].name
-    const numberOfRegularRooms = HotelsInfo.hotels[i-1].numberOfRegularRooms
-    const numberOfLuxuryRooms = HotelsInfo.hotels[i-1].numberOfLuxuryRooms
-    const hotel = await Hotel.deploy(numberOfRegularRooms, numberOfLuxuryRooms, hotelName);
+    const hotelAddress = HotelsInfo.hotels[i-1].address
+    const hotelCoverPhotoLink = HotelsInfo.hotels[i-1].coverPhotoLink
+    const roomsTypes = HotelsInfo.hotels[i-1].rooms.map((room) => room.type)
+    const roomsPrices = HotelsInfo.hotels[i-1].rooms.map((room) => room.price)
+    const roomsNumbers = HotelsInfo.hotels[i-1].rooms.reduce((acc, room) => { acc.push(room.From); acc.push(room.To); return acc; }, []);
+
+    numberOfRooms = 0;
+    for (let j = 0; j < roomsNumbers.length; j += 2) {
+      numberOfRooms += roomsNumbers[j + 1] - roomsNumbers[j] + 1;
+    }
+
+    const hotel = await Hotel.deploy(hotelName, hotelAddress, hotelCoverPhotoLink, roomsTypes, roomsPrices, roomsNumbers);
     await hotel.deployed();
     json.hotels.push({
-      key: i,
-      name: hotelName,
-      contractAddress: hotel.address,
-      address: HotelsInfo.hotels[i-1].address,
-      numberOfRegularRooms: numberOfRegularRooms,
-      numberOfLuxuryRooms: numberOfLuxuryRooms,
-      coverPhotoLink: HotelsInfo.hotels[i-1].coverPhotoLink
+      contractAddress: hotel.address
     })
     console.log(`hotel address deployed to ${hotel.address}`);
   }

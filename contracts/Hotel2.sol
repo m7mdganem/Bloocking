@@ -6,19 +6,15 @@ import "hardhat/console.sol";
 
 contract HotelBooking {
     address payable public owner;
-    uint public totalRooms;
-    uint public bookedRooms;
     string public hotelName;
-
-    enum RoomType {
-        Regular,
-        Luxury
-    }
+    string public hotelAddress;
+    string public coverPhotoLink;
+    uint public totalRooms = 0;
+    uint public totalBookings = 0;
 
     struct Room {
         uint Id;
-        RoomType roomType;
-        uint price;
+        string roomType;
     }
 
     struct Booking {
@@ -31,46 +27,45 @@ contract HotelBooking {
     mapping(address => Booking[]) guestsToBookings;
     mapping(uint => Booking[]) bookings;
     mapping(address => bool) customers;
+    mapping(string => uint) roomTypeToPrice;
+    mapping(string => uint) roomTypeToNumberOfRooms;
     Room[] rooms;
+    string[] roomsTypes;
+    uint rooms_index = 1;
 
     // Event to be emitted when a booking is made
     event BookingMade(uint roomId);
 
-    // Event to be emitted when a feedback is given
-    event FeedbackGiven(address guest, uint bookingId, uint rating, string feedback);
-
-    // Event to be emitted when a feedback is given by the owner
-    event OwnerFeedbackGiven(address guest, uint bookingId, string feedback);
-
-    constructor(uint numberOfRegularRooms, uint numberOfLuxuryRooms, string memory _hotelName) {
+    constructor(string memory _hotelName, string memory _hotelAddress, string memory _coverPhotoLink, string[] memory _roomsTypes, uint[] memory _roomsPrices, uint[] memory _roomsNumbers) {
         owner = payable(msg.sender);
         hotelName = _hotelName;
+        hotelAddress = _hotelAddress;
+        coverPhotoLink = _coverPhotoLink;
+        totalRooms = 0;
 
-        uint index = 1;
-        for (uint i = 0; i < numberOfRegularRooms; i++) {
-            Room memory room = Room(index, RoomType.Regular, 1 ether);
-            rooms.push(room);
-            roomsMapping[index] = room;
-            index++;
+        for (uint i = 0; i < _roomsTypes.length; i++) {
+            string memory roomType = _roomsTypes[i];
+            roomsTypes.push(roomType);
+            roomTypeToNumberOfRooms[roomType] = 0;
+            uint roomPrice = _roomsPrices[i];
+            uint roomsNumbersStart = _roomsNumbers[i * 2];
+            uint roomsNumbersEnd = _roomsNumbers[i * 2 + 1];
+            roomTypeToPrice[roomType] = roomPrice * (1 ether);
+            for (uint j = roomsNumbersStart; j <= roomsNumbersEnd; j++) {
+                console.log("Room Id created: %s", j);
+                rooms.push(Room(j, roomType));
+                roomsMapping[j] = Room(j, roomType);
+                totalRooms++;
+                roomTypeToNumberOfRooms[roomType] = roomTypeToNumberOfRooms[roomType] + 1;
+            }
         }
-
-        for (uint i = 0; i < numberOfLuxuryRooms; i++) {
-            Room memory room = Room(index, RoomType.Luxury, 2 ether);
-            rooms.push(room);
-            roomsMapping[index] = room;
-            index++;
-        }
-
-        totalRooms = numberOfRegularRooms + numberOfLuxuryRooms;
-        bookedRooms = 0;
     }
 
-    function checkAvailability(uint checkIn, uint checkOut, RoomType roomType) public view returns (uint) {
+    function checkAvailability(uint checkIn, uint checkOut, string memory roomType) public view returns (uint) {
         require(checkIn < checkOut);
-        
-
         for (uint i = 0; i < rooms.length; i++) {
-            if (rooms[i].roomType == roomType) {
+            console.log("checking room index: %s", i);
+            if (isEqualStrings(rooms[i].roomType, roomType)) {
                 bool isOverlapping = false;
                 Booking[] memory roomBookings = bookings[rooms[i].Id];
                 for (uint j = 0; j < roomBookings.length; j++) {
@@ -87,17 +82,22 @@ contract HotelBooking {
         return 0;
     }
 
-    function makeBooking(uint checkIn, uint checkOut, RoomType roomType) public payable {
+    function makeBooking(uint checkIn, uint checkOut, string memory roomType) public payable {
         uint roomId = checkAvailability(checkIn, checkOut, roomType);
 
+        console.log("Room Id: %s", roomId);
+        console.log("Room Type: %s", roomType);
+        console.log("Room Price: %s", roomTypeToPrice[roomType]);
+        console.log("msg value: %s", msg.value);
+
         require(roomId != 0, "Rooms are not available for the specified dates.");
-        require(msg.value == roomsMapping[roomId].price, "Incorrect payment amount.");
+        require(msg.value == roomTypeToPrice[roomType], "Incorrect payment amount.");
 
         owner.transfer(msg.value);
-        bookedRooms++;
         guestsToBookings[msg.sender].push(Booking(msg.sender, checkIn, checkOut));
         bookings[roomId].push(Booking(msg.sender, checkIn, checkOut));
         customers[msg.sender] = true;
+        totalBookings++;
         emit BookingMade(roomId);
     }
 
@@ -114,31 +114,78 @@ contract HotelBooking {
 
         return address(0);
     }
+
+    function updateRoomPrice(string memory room_type, uint new_price) public {
+        require(msg.sender == owner,"Only hotel owner can access the updateRoomPrice function");
+        roomTypeToPrice[room_type] = new_price * (1 ether);
+    }
+
+    function addRoomTypeIfNotExists(string memory room_type) private {
+        for (uint i = 0; i < roomsTypes.length; i++) {
+            if (isEqualStrings(roomsTypes[i], room_type)) {
+                return;
+            }
+        }
+        roomsTypes.push(room_type);
+    }
+
+    function addRoom(string memory room_type, uint room_price, uint numberOfRoomsToAdd) public {
+        require(msg.sender == owner,"Only hotel owner can access the addRoom function");
+        addRoomTypeIfNotExists(room_type);
+        for (uint i = 0; i < numberOfRoomsToAdd; i++) {
+            rooms.push(Room(totalRooms, room_type));
+            roomsMapping[totalRooms] = Room(totalRooms, room_type);
+            roomTypeToNumberOfRooms[room_type] = roomTypeToNumberOfRooms[room_type] + 1;
+            totalRooms++;
+        }
+        roomTypeToPrice[room_type] = room_price * (1 ether);
+    }
      
     function isCustomer() public view returns(bool) {
-        if(customers[msg.sender] == true){
-            return true;
-        }
+        return customers[msg.sender];
+    }
 
-        return false;
+    function getRoomsTypes() public view returns(string[] memory) {
+        return roomsTypes;
+    }
+
+    function getRoomPriceByType(string memory room_type) public view returns(uint) {
+        return roomTypeToPrice[room_type] / (1 ether);
+    }
+
+    function getNumberOfRoomsByType(string memory room_type) public view returns(uint) {
+        return roomTypeToNumberOfRooms[room_type];
+    }
+
+    function getTotalRooms() public view returns(uint) {
+        return totalRooms;
+    }
+
+    function getTotalBookings() public view returns(uint) {
+        return totalBookings;
+    }
+
+    function getHotelAddress() public view returns(string memory) {
+        return hotelAddress;
+    }
+
+    function getHotelName() public view returns(string memory) {
+        return hotelName;
+    }
+
+    function getCoverPhotoLink() public view returns(string memory) {
+        return coverPhotoLink;
     }
 
     function isOwner() public view returns(bool) {
-        if(msg.sender == owner){
-            return true;
-        }
+        return msg.sender == owner;
+    }
 
-        return false;
+    function isEqualStrings(string memory a, string memory b) public pure returns (bool) {
+        return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
 
     fallback() external payable { }
 
     receive() external payable { }
-
-    // Function to cancel a booking
-    // function cancelBooking(uint bookingId) public {
-    //     require(msg.sender == guestsToBookings[msg.sender].guest, "You are not authorized to cancel this booking.");
-    //     delete guestsToBookings[msg.sender];
-    //     bookedRooms--;
-    // }
 }

@@ -4,41 +4,293 @@
             "name": "METROPOLITAN",
             "address": "Address 1",
             "available": true,
-            "numberOfRegularRooms": 10,
-            "numberOfLuxuryRooms": 10,
-            "coverPhotoLink": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/356914115.jpg?k=fb7e0141c2aae13bc14021b2f85b7afe529de78bcf787e59ec873b422db7d791&o=&hp=1"
+            "coverPhotoLink": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/356914115.jpg?k=fb7e0141c2aae13bc14021b2f85b7afe529de78bcf787e59ec873b422db7d791&o=&hp=1",
+            "rooms": [
+                {
+                    "type": "Cheap",
+                    "price": 1,
+                    "From": 1,
+                    "To": 1
+                },
+                {
+                    "type": "Regular",
+                    "price": 1,
+                    "From": 2,
+                    "To": 2
+                },
+                {
+                    "type": "Luxury",
+                    "price": 2,
+                    "From": 3,
+                    "To": 3
+                }
+            ]
         },
         {
             "name": "Hotel Presidente",
             "address": "Address 2",
             "available": true,
-            "numberOfRegularRooms": 1,
-            "numberOfLuxuryRooms": 1,
-            "coverPhotoLink": "https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg"
+            "coverPhotoLink": "https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg",
+            "rooms": [
+                {
+                    "type": "Single",
+                    "price": 1,
+                    "From": 1,
+                    "To": 53
+                },
+                {
+                    "type": "Double",
+                    "price": 2,
+                    "From": 54,
+                    "To": 83
+                },
+                {
+                    "type": "Triple",
+                    "price": 3,
+                    "From": 84,
+                    "To": 124
+                },
+                {
+                    "type": "Quad",
+                    "price": 3,
+                    "From": 125,
+                    "To": 148
+                },
+                {
+                    "type": "Queen",
+                    "price": 3,
+                    "From": 149,
+                    "To": 174
+                },
+                {
+                    "type": "King",
+                    "price": 3,
+                    "From": 175,
+                    "To": 199
+                },
+                {
+                    "type": "Twin",
+                    "price": 3,
+                    "From": 200,
+                    "To": 210
+                },
+                {
+                    "type": "Suite",
+                    "price": 3,
+                    "From": 211,
+                    "To": 225
+                },
+                {
+                    "type": "Executive Suite",
+                    "price": 3,
+                    "From": 226,
+                    "To": 234
+                },
+                {
+                    "type": "President Suite",
+                    "price": 3,
+                    "From": 235,
+                    "To": 247
+                },
+                {
+                    "type": "Villa",
+                    "price": 3,
+                    "From": 248,
+                    "To": 254
+                }
+            ]
         },
         {
             "name": "Hotel TIMISOARA",
             "address": "Address 3",
             "available": true,
-            "numberOfRegularRooms": 8,
-            "numberOfLuxuryRooms": 3,
-            "coverPhotoLink": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/itemimages/32/04/320496_v4.jpeg"
+            "coverPhotoLink": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/itemimages/32/04/320496_v4.jpeg",
+            "rooms": [
+                {
+                    "type": "Single",
+                    "price": 1,
+                    "From": 1,
+                    "To": 70
+                },
+                {
+                    "type": "Double",
+                    "price": 2,
+                    "From": 71,
+                    "To": 98
+                },
+                {
+                    "type": "Triple",
+                    "price": 3,
+                    "From": 99,
+                    "To": 124
+                },
+                {
+                    "type": "Queen",
+                    "price": 3,
+                    "From": 125,
+                    "To": 165
+                },
+                {
+                    "type": "King",
+                    "price": 3,
+                    "From": 166,
+                    "To": 183
+                },
+                {
+                    "type": "Twin",
+                    "price": 3,
+                    "From": 184,
+                    "To": 210
+                },
+                {
+                    "type": "Suite",
+                    "price": 3,
+                    "From": 211,
+                    "To": 225
+                },
+                {
+                    "type": "President Suite",
+                    "price": 3,
+                    "From": 226,
+                    "To": 253
+                }
+            ]
         },
         {
             "name": "E Central",
             "address": "Address 4",
             "available": true,
-            "numberOfRegularRooms": 18,
-            "numberOfLuxuryRooms": 3,
-            "coverPhotoLink": "https://www.il.kayak.com/rimg/himg/ab/64/d9/expediav2-38713-6584af-750938.jpg?width=720&height=576&crop=true"
+            "coverPhotoLink": "https://www.il.kayak.com/rimg/himg/ab/64/d9/expediav2-38713-6584af-750938.jpg?width=720&height=576&crop=true",
+            "rooms": [
+                {
+                    "type": "Single",
+                    "price": 1,
+                    "From": 1,
+                    "To": 84
+                },
+                {
+                    "type": "Double",
+                    "price": 2,
+                    "From": 85,
+                    "To": 140
+                },
+                {
+                    "type": "Triple",
+                    "price": 3,
+                    "From": 141,
+                    "To": 183
+                },
+                {
+                    "type": "Quad",
+                    "price": 3,
+                    "From": 184,
+                    "To": 199
+                },
+                {
+                    "type": "Queen",
+                    "price": 3,
+                    "From": 200,
+                    "To": 224
+                },
+                {
+                    "type": "King",
+                    "price": 3,
+                    "From": 225,
+                    "To": 240
+                },
+                {
+                    "type": "Twin",
+                    "price": 3,
+                    "From": 241,
+                    "To": 272
+                },
+                {
+                    "type": "Suite",
+                    "price": 3,
+                    "From": 273,
+                    "To": 298
+                },
+                {
+                    "type": "Executive Suite",
+                    "price": 3,
+                    "From": 299,
+                    "To": 316
+                },
+                {
+                    "type": "President Suite",
+                    "price": 3,
+                    "From": 317,
+                    "To": 362
+                },
+                {
+                    "type": "Villa",
+                    "price": 3,
+                    "From": 363,
+                    "To": 369
+                }
+            ]
         },
         {
             "name": "ANATOLE HOTEL",
             "address": "Address 5",
             "available": true,
-            "numberOfRegularRooms": 133,
-            "numberOfLuxuryRooms": 55,
-            "coverPhotoLink": "https://pix10.agoda.net/hotelImages/10535978/-1/8329264835dfad1ca856365749af947b.jpg?ca=10&ce=1&s=1024x768"
+            "coverPhotoLink": "https://pix10.agoda.net/hotelImages/10535978/-1/8329264835dfad1ca856365749af947b.jpg?ca=10&ce=1&s=1024x768",
+            "rooms": [
+                {
+                    "type": "Single",
+                    "price": 1,
+                    "From": 1,
+                    "To": 260
+                },
+                {
+                    "type": "Double",
+                    "price": 2,
+                    "From": 261,
+                    "To": 389
+                },
+                {
+                    "type": "Triple",
+                    "price": 3,
+                    "From": 390,
+                    "To": 460
+                },
+                {
+                    "type": "Quad",
+                    "price": 3,
+                    "From": 461,
+                    "To": 532
+                },
+                {
+                    "type": "Queen",
+                    "price": 3,
+                    "From": 533,
+                    "To": 622
+                },
+                {
+                    "type": "King",
+                    "price": 3,
+                    "From": 623,
+                    "To": 683
+                },
+                {
+                    "type": "Twin",
+                    "price": 3,
+                    "From": 684,
+                    "To": 732
+                },
+                {
+                    "type": "Suite",
+                    "price": 3,
+                    "From": 733,
+                    "To": 742
+                },
+                {
+                    "type": "President Suite",
+                    "price": 3,
+                    "From": 743,
+                    "To": 761
+                }
+            ]
         }
     ]
 }

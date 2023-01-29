@@ -6,15 +6,22 @@ import HotelBooking from '../HotelBooking.json';
 import Reputation from '../Reputation.json';
 import contractsInfo from '../contractsInfo.json';
 
-import './HotelPage.css';
+import './HotelAdminPage.css';
 
-function Hotel({ contractAddress }) {
+function HotelAdminPage({ contractAddress }) {
   // Hotel info
   const [hotelName, setHotelName] = useState(undefined);
   const [hotelRoomsTypes, setHotelRoomsTypes] = useState([]);
   const [hotelRoomsPrices, setHotelRoomsPrices] = useState(new Map());
   const [hotelRoomsNumbers, setHotelRoomsNumbers] = useState(new Map());
+  const [hotelTotalRooms, setHotelTotalRooms] = useState(0);
+  const [hotelTotalBookedRooms, setHotelTotalBookedRooms] = useState(0);
   const [coverPhotoLink, setCoverPhotoLink] = useState(undefined);
+
+  // Add room card
+    const [roomTypeToAdd, setRoomTypeToAdd] = useState();
+    const [roomPriceToAdd, setRoomPriceToAdd] = useState();
+    const [roomNumberToAdd, setRoomNumberToAdd] = useState();
 
   // Dates
   const [startDate, setStartDate] = useState()
@@ -27,9 +34,15 @@ function Hotel({ contractAddress }) {
   // Errors
   const [hasErrorDateRange, setHasErrorDateRange] = useState(new Map())
   const [hasErrorBooking, setHasErrorBooking] = useState(new Map())
+  const [hasErrorFindingCustomer, setHasErrorFindingCustomer] = useState(false)
+  const [hasErrorAddingRoom, setHasErrorAddingRoom] = useState(false)
 
   // isOwner
   const [isOwner, setIsOwner] = useState(false)
+
+  // customer rating info
+  const [customerDate, setCustomerDate] = useState()
+  const [roomNumber, setRoomNumber] = useState()
 
   // booked room id
   const [bookedRoomId, setBookedRoomId] = useState(new Map())
@@ -56,6 +69,20 @@ function Hotel({ contractAddress }) {
   }, []);
 
   useEffect(() => {
+    getHotelTotalRooms().then((hotelTotalRooms) => {
+      setHotelTotalRooms(hotelTotalRooms);
+    });
+  // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    getHotelTotalBookings().then((hotelTotalBookings) => {
+        setHotelTotalBookedRooms(hotelTotalBookings);
+    });
+  // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
     getRoomsTypes().then((roomsTypes) => {
       setHotelRoomsTypes(roomsTypes);
       getRoomsPrices(roomsTypes).then((roomsPrices) => {
@@ -67,6 +94,40 @@ function Hotel({ contractAddress }) {
     });
   // eslint-disable-next-line
   }, []);
+
+  async function getHotelTotalRooms() {
+    const getHotelTotalRoomsAsync = async (hotelContractAddress) => {
+        if (typeof window.ethereum !== 'undefined') {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const signer = provider.getSigner()
+            const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+            try {
+                const hotelTotalRooms = await a.getTotalRooms()
+                return hotelTotalRooms;
+            } catch (err) {
+                console.log("Error:    ", err)
+            }
+        }
+    }
+    return await getHotelTotalRoomsAsync(contractAddress);
+  }
+
+  async function getHotelTotalBookings() {
+    const getHotelTotalBookingsAsync = async (hotelContractAddress) => {
+        if (typeof window.ethereum !== 'undefined') {
+            const provider = new ethers.providers.Web3Provider(window.ethereum)
+            const signer = provider.getSigner()
+            const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+            try {
+                const hotelTotalBookings = await a.getTotalBookings()
+                return hotelTotalBookings;
+            } catch (err) {
+                console.log("Error:    ", err)
+            }
+        }
+    }
+    return await getHotelTotalBookingsAsync(contractAddress);
+  }
 
   async function getRoomsTypes() {
     const getRoomsTypesAsync = async (hotelContractAddress) => {
@@ -206,20 +267,39 @@ function Hotel({ contractAddress }) {
     setBookedRoomId(newBookings);
   }
 
-  async function rateHotel() {
+  async function rateCustomer() {
     if (typeof window.ethereum !== 'undefined') {
       const provider = new ethers.providers.Web3Provider(window.ethereum)
       const signer = provider.getSigner()
       const a = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
       const rating = new ethers.Contract(contractsInfo.reps[0].reputationContractAddress, Reputation.abi, signer)
       try {
-        const isCustomer = await a.isCustomer()
-        if(isCustomer){
-          const rate = await rating.submitRating(contractAddress, ratingNumerical)
+        const customerAddress = await a.getCustomerAdressByDate(customerDate.getTime(), roomNumber)
+        if(customerAddress !== "0x0000000000000000000000000000000000000000"){
+          const rate = await rating.submitRating(customerAddress, ratingNumerical)
           await rate.wait()
         }
         else {
-          alert("You can't rate a hotel if you haven't booked a room in it!")
+          setHasErrorFindingCustomer(true);
+        }
+      } catch (err) {
+        console.log("Error:    ", err)
+      }
+    }    
+  }
+
+  async function addRoom() {
+    if (typeof window.ethereum !== 'undefined') {
+      const provider = new ethers.providers.Web3Provider(window.ethereum)
+      const signer = provider.getSigner()
+      const a = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
+      try {
+        if(isOwner){
+          const addRoom = await a.addRoom(roomTypeToAdd, roomPriceToAdd, roomNumberToAdd);
+          await addRoom.wait()
+        }
+        else {
+            setHasErrorAddingRoom(true);
         }
       } catch (err) {
         console.log("Error:    ", err)
@@ -263,6 +343,31 @@ function Hotel({ contractAddress }) {
     setEndDate(new Date(x.target.value));
   }
 
+  function changeCustomerDate(x) {
+    setHasErrorFindingCustomer(false);
+    setCustomerDate(new Date(x.target.value));
+  }
+
+  function changeRoomNumber(x) {
+    setHasErrorFindingCustomer(false);
+    setRoomNumber(x.target.value);
+  }
+
+  function changeRoomTypeToAdd(x) {
+    setHasErrorAddingRoom(false);
+    setRoomTypeToAdd(x.target.value);
+  }
+
+  function changeRoomNumberToAdd(x) {
+    setHasErrorAddingRoom(x.target.value < 0);
+    setRoomNumberToAdd(x.target.value);
+  }
+
+  function changeRoomPriceToAdd(x) {
+    setHasErrorAddingRoom(x.target.value < 0);
+    setRoomPriceToAdd(x.target.value);
+  }
+
   function onChangeSetRating(event) {
     let rating = event.target.getAttribute("rating");
 
@@ -289,56 +394,79 @@ function Hotel({ contractAddress }) {
 
   return (
     <>
-    {!isOwner &&
-      (<div>
+    {isOwner &&
+    (<div>
       <div class="header">
         {coverPhotoLink && <img class="hotel-img" src={coverPhotoLink} alt=""></img>}
         {hotelName && <div class="hotel-name">{`${hotelName}`}</div>}
       </div>
 
-        <div class="rooms">
-          {hotelRoomsTypes &&
-           hotelRoomsTypes.map((roomType, index) => {
-            return <div class="rooms-card">
-              <h2>{`${roomType}`}</h2>
-              {hotelRoomsNumbers.get(roomType) && <p>{`Number of rooms: ${hotelRoomsNumbers.get(roomType)}`}</p>}
-              {hotelRoomsPrices.get(roomType) && <p>{`Price: ${hotelRoomsPrices.get(roomType)} ETH`}</p>}
-              <div class="booking-button">
-                <div class="date-picker">
-                  <span class="date-title1">From: </span>
-                  <input type="date" id="start" name="booking-start" min={getCurrentDate()} onChange={changeStartDate}></input>
-                </div>
-                <div class="date-picker">
-                  <span class="date-title2">To: </span>
-                  <input type="date" id="end" name="booking-end" min={getCurrentDate()} onChange={changeEndDate}></input>
-                </div>
-                {hotelRoomsPrices.get(roomType) && <button class="book-now-button" roomType={roomType} roomPrice={hotelRoomsPrices.get(roomType)} onClick={onClickMakeBooking}>Book Now</button>}
-                {hasErrorDateRange.get(roomType) && <p class="error">Please select a valid date range.</p>}
-                {hasErrorBooking.get(roomType) && <p class="error">{'There are no available rooms in this date. Please select another date or try booking another room type.'}</p>}
-                {bookedRoomId.get(roomType) && <p class="room-booked">{`You booked room number ${bookedRoomId.get(roomType)} Successfully`}</p>}
-              </div>
-            </div>
+      <div class="hotel-info-and-stats">
+        <div class="hotel-details-card">
+            <h1>Hotel Info And Stats</h1>
+            <p>
+                <span class="hotel-details-title">Total number of rooms: </span>
+                {hotelTotalRooms && <span class="hotel-details">{`${hotelTotalRooms}`}</span>}
+            </p>
 
-          })}
+            <p>
+                <span class="hotel-details-title">Total number of bookings: </span>
+                {hotelTotalBookedRooms && <span class="hotel-details">{`${hotelTotalBookedRooms}`}</span>}
+            </p>
+            
+            <p>
+                <span class="hotel-details-title">Room types: </span>
+                {hotelTotalBookedRooms && <span class="hotel-details">{`${hotelRoomsTypes.join(',  ')}`}</span>}
+            </p>
         </div>
+      </div>
+
+      <div class="update-hotel">
+        <div class="update-card">
+            <h2>Add Room</h2>
+            <div>
+                <input type="text" placeholder='Room type' onChange={changeRoomTypeToAdd}></input>
+            </div>
+            <div>
+                <input type="text" inputmode="numeric" style={{marginTop: '16px'}} placeholder='Number of rooms to add' onChange={changeRoomNumberToAdd}></input>
+            </div>
+            <div>
+                <input type="text" inputmode="numeric" style={{marginTop: '16px'}} placeholder='Room Price' onChange={changeRoomPriceToAdd}></input>
+            </div>
+            <div>
+                {hasErrorAddingRoom && <p class="error">Please enter a valid room type and number of rooms.</p>}
+            </div>
+            <div>
+                <button class="submit-button" onClick={addRoom}>Submit Feedback</button>
+            </div>
+        </div>
+      </div>
 
         <div class="rating">
           <div class="card-wrapper">
           <div class="card-details">
-            <h3 class="card-title">Have you been in this hotel? Please help us rating it!</h3>
+            <h3 class="card-title">Please help us rating customers to keep fit community!</h3>
+            <p>Select the date the customer was in the hotel, and the room number he stayed in:</p>
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
-            {getRatingComponent()}
+            <input type="date" onChange={changeCustomerDate}></input>
+            <input type="text" inputmode="numeric" class="room-number-input" placeholder='Enter room number' onChange={changeRoomNumber}></input>
+            <div class="rating-customer-stars">
+              {getRatingComponent()}
+            </div>
           </div>
           
+          {hasErrorFindingCustomer && <p class="error">{'There is no customer in this date and room number. Please select another date or room number.'}</p>}
+          
           <div class="reveal-details">
-            <button class="submit-feedback-button" onClick={rateHotel}>Submit Feedback</button>
+            <button class="submit-feedback-button" onClick={rateCustomer}>Submit Feedback</button>
           </div>
         </div>
         </div>
 
     </div>)}
+
     </>
   );
 }
 
-export default Hotel;
+export default HotelAdminPage;

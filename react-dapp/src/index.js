@@ -1,11 +1,15 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import contractsInfo from './contractsInfo.json';
 import Hotel from './Pages/HotelPage';
+import HotelAdminPage from './Pages/HotelAdminPage';
+
+import './index.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -15,14 +19,13 @@ root.render(
           <Route path="/" element={<App />}></Route>
           <Route path="*" element={<div>404 Not Found</div>} />
           {contractsInfo.hotels.map((hotel) => 
-            { return <Route path={`/hotels/${hotel.key}`} element={<Hotel
-                key={hotel.key} 
-                name={hotel.name}
+            { return <Route path={`/hotels/${hotel.contractAddress}`} element={<Hotel
                 contractAddress={hotel.contractAddress}
-                address={hotel.address}
-                numberOfRegularRooms={hotel.numberOfRegularRooms}
-                numberOfLuxuryRooms={hotel.numberOfLuxuryRooms}
-                coverPhotoLink={hotel.coverPhotoLink}
+             />} />}
+          )}
+          {contractsInfo.hotels.map((hotel) => 
+            { return <Route path={`/hotels/admin/${hotel.contractAddress}`} element={<HotelAdminPage
+                contractAddress={hotel.contractAddress}
              />} />}
           )}
       </Routes>
