@@ -1,0 +1,140 @@
+.header {
+  position: relative;
+  text-align: center;
+  color: white;
+  width: 100%;
+}
+
+.hotel-img {
+    width: 100%;
+    object-fit: cover;
+}
+
+.hotel-name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 120px;
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+    text-shadow: 1px 1px 2px red, 0 0 1em rgb(0, 0, 0), 0 0 0.2em rgb(0, 0, 0), 0 0 5em rgb(0, 0, 0);
+  }
+
+.rooms-card {
+    float: left;
+    width: 25%;
+    padding: 0 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    text-align: center;
+    background-color: #f1f1f1;
+    margin: 40px;
+}
+
+.booking-button {
+    display: inline-block;
+    flex-direction: column;
+}
+
+.date-picker {
+    margin-top: 12px;
+}
+
+.date-title1 {
+    margin-right: 12px;
+}
+
+.date-title2 {
+    margin-right: 32px;
+}
+
+.book-now-button {
+    cursor: pointer;
+    width: 160px;
+    height: 30px;
+    font-size: 18px;
+    margin-top: 12px;
+}
+
+.error {
+    color: red;
+}
+
+.room-booked {
+    color: green;
+}
+
+.rating {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+}
+
+.page-wrapper {
+    padding-top: 5%;
+    display: flex;
+    -webkit-display: flex;
+    justify-content: space-around;
+}
+
+.card-wrapper {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    border-bottom-width: 0px;
+    border-right-width: 0px;
+    border-style: solid;
+    border-width: 0.009px;
+    border-color: rgb(230, 227, 227);
+    background: white;   
+    max-height: 52px;
+    overflow: hidden;
+    transition: max-height 500ms ease-in-out;  
+
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.card-wrapper:hover {
+    box-shadow: 0 0 8px #d3d3d3;    
+    max-height: 300px;
+}
+
+.card-details,
+.reveal-details {
+    font-weight: 300;
+} 
+
+.card-height-animate {
+    height: 300px; 
+}
+
+.star {
+    cursor: pointer;
+}
+
+.checked {
+    color: orange;
+}
+
+.submit-feedback-button {
+    cursor: pointer;
+    width: 160px;
+    height: 30px;
+    margin-top: 12px;
+    padding: 0 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    text-align: center;
+    background-color: white;
+
+}
+
+.room-number-input {
+    width: 120px;
+    margin-left: 10px;
+}
+
+.rating-customer-stars {
+    margin-top: 12px;
+}

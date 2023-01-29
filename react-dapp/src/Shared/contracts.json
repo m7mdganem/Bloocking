@@ -1,0 +1,10 @@
+{
+    "RoomType": {
+        "Regular": 0,
+        "Luxury": 1
+    },
+    "RoomPrice": {
+        "Regular": 1,
+        "Luxury": 2
+    }
+}

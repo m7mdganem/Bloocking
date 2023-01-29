@@ -1,0 +1,44 @@
+{
+    "hotels": [
+        {
+            "name": "METROPOLITAN",
+            "address": "Address 1",
+            "available": true,
+            "numberOfRegularRooms": 10,
+            "numberOfLuxuryRooms": 10,
+            "coverPhotoLink": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/356914115.jpg?k=fb7e0141c2aae13bc14021b2f85b7afe529de78bcf787e59ec873b422db7d791&o=&hp=1"
+        },
+        {
+            "name": "Hotel Presidente",
+            "address": "Address 2",
+            "available": true,
+            "numberOfRegularRooms": 1,
+            "numberOfLuxuryRooms": 1,
+            "coverPhotoLink": "https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg"
+        },
+        {
+            "name": "Hotel TIMISOARA",
+            "address": "Address 3",
+            "available": true,
+            "numberOfRegularRooms": 8,
+            "numberOfLuxuryRooms": 3,
+            "coverPhotoLink": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/itemimages/32/04/320496_v4.jpeg"
+        },
+        {
+            "name": "E Central",
+            "address": "Address 4",
+            "available": true,
+            "numberOfRegularRooms": 18,
+            "numberOfLuxuryRooms": 3,
+            "coverPhotoLink": "https://www.il.kayak.com/rimg/himg/ab/64/d9/expediav2-38713-6584af-750938.jpg?width=720&height=576&crop=true"
+        },
+        {
+            "name": "ANATOLE HOTEL",
+            "address": "Address 5",
+            "available": true,
+            "numberOfRegularRooms": 133,
+            "numberOfLuxuryRooms": 55,
+            "coverPhotoLink": "https://pix10.agoda.net/hotelImages/10535978/-1/8329264835dfad1ca856365749af947b.jpg?ca=10&ce=1&s=1024x768"
+        }
+    ]
+}
