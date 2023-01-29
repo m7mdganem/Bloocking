@@ -1,10 +1,5 @@
-import { ethers } from 'ethers';
-import { requestAccount } from '../Shared/webEtherum';
+import { getSignerHotelContract, getSignerReputationContract } from '../Shared/webEtherum';
 import { useState, useEffect } from 'react';
-
-import HotelBooking from '../HotelBooking.json';
-import Reputation from '../Reputation.json';
-import contractsInfo from '../contractsInfo.json';
 
 import './HotelAdminPage.css';
 
@@ -23,17 +18,11 @@ function HotelAdminPage({ contractAddress }) {
     const [roomPriceToAdd, setRoomPriceToAdd] = useState();
     const [roomNumberToAdd, setRoomNumberToAdd] = useState();
 
-  // Dates
-  const [startDate, setStartDate] = useState()
-  const [endDate, setEndDate] = useState()
-
   // Rating
   const [rating, setRating] = useState()
   const [ratingNumerical, setRatingNumerical] = useState()
 
   // Errors
-  const [hasErrorDateRange, setHasErrorDateRange] = useState(new Map())
-  const [hasErrorBooking, setHasErrorBooking] = useState(new Map())
   const [hasErrorFindingCustomer, setHasErrorFindingCustomer] = useState(false)
   const [hasErrorAddingRoom, setHasErrorAddingRoom] = useState(false)
 
@@ -43,9 +32,6 @@ function HotelAdminPage({ contractAddress }) {
   // customer rating info
   const [customerDate, setCustomerDate] = useState()
   const [roomNumber, setRoomNumber] = useState()
-
-  // booked room id
-  const [bookedRoomId, setBookedRoomId] = useState(new Map())
 
   useEffect(() => {
     checkIsOwner().then((isOwner) => {
@@ -98,12 +84,9 @@ function HotelAdminPage({ contractAddress }) {
   async function getHotelTotalRooms() {
     const getHotelTotalRoomsAsync = async (hotelContractAddress) => {
         if (typeof window.ethereum !== 'undefined') {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-            const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+            const hotelContract = await getSignerHotelContract(hotelContractAddress);
             try {
-                const hotelTotalRooms = await a.getTotalRooms()
-                return hotelTotalRooms;
+                return await hotelContract.getTotalRooms()
             } catch (err) {
                 console.log("Error:    ", err)
             }
@@ -115,12 +98,9 @@ function HotelAdminPage({ contractAddress }) {
   async function getHotelTotalBookings() {
     const getHotelTotalBookingsAsync = async (hotelContractAddress) => {
         if (typeof window.ethereum !== 'undefined') {
-            const provider = new ethers.providers.Web3Provider(window.ethereum)
-            const signer = provider.getSigner()
-            const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+            const hotelContract = await getSignerHotelContract(hotelContractAddress);
             try {
-                const hotelTotalBookings = await a.getTotalBookings()
-                return hotelTotalBookings;
+                return await hotelContract.getTotalBookings();
             } catch (err) {
                 console.log("Error:    ", err)
             }
@@ -132,12 +112,9 @@ function HotelAdminPage({ contractAddress }) {
   async function getRoomsTypes() {
     const getRoomsTypesAsync = async (hotelContractAddress) => {
       if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          const roomsTypes = await a.getRoomsTypes()
-          return roomsTypes;
+          return await hotelContract.getRoomsTypes();
         } catch (err) {
           console.log("Error:    ", err)
         }
@@ -150,12 +127,9 @@ function HotelAdminPage({ contractAddress }) {
     const roomsPrices = new Map();
     const getRoomPriceAsync = async (hotelContractAddress, roomType) => {
       if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          const roomPrice = await a.getRoomPriceByType(roomType)
-          return roomPrice;
+          return await hotelContract.getRoomPriceByType(roomType)
         } catch (err) {
           console.log("Error:    ", err)
         }
@@ -171,12 +145,9 @@ function HotelAdminPage({ contractAddress }) {
     const numberOfRooms = new Map();
     const getNumberOfRoomsByTypeAsync = async (hotelContractAddress, roomType) => {
       if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          const numberOfRooms = await a.getNumberOfRoomsByType(roomType)
-          return numberOfRooms;
+          return await hotelContract.getNumberOfRoomsByType(roomType);
         } catch (err) {
           console.log("Error:    ", err)
         }
@@ -191,92 +162,39 @@ function HotelAdminPage({ contractAddress }) {
   async function getHotelName() {
     const getHotelNameAsync = async (hotelContractAddress) => {
       if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          const hotelName = await a.getHotelName()
-          return hotelName;
+          return await hotelContract.getHotelName();
         } catch (err) {
           console.log("Error:    ", err)
         }
       }
     }
-    
     return await getHotelNameAsync(contractAddress);
   }
 
   async function getCoverPhotoLink() {
     const getCoverPhotoLinkAsync = async (hotelContractAddress) => {
       if (typeof window.ethereum !== 'undefined') {
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        const signer = provider.getSigner()
-        const a = new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer)
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          const coverPhotoLink = await a.getCoverPhotoLink()
-          return coverPhotoLink;
+          return await hotelContract.getCoverPhotoLink();
         } catch (err) {
           console.log("Error:    ", err)
         }
       }
     }
-    
     return await getCoverPhotoLinkAsync(contractAddress);
-  }
-
-  async function makeBooking(roomType, roomPrice) {
-    if (typeof window.ethereum !== 'undefined') {
-      await requestAccount()
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner()
-      const contract = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
-      try {
-        const transaction = await contract.makeBooking(startDate.getTime(), endDate.getTime(), roomType, { value: ethers.utils.parseEther(roomPrice) })
-        const roomId = await transaction.wait()
-        return roomId.events[0].args.roomId;
-      } catch (err) {
-        console.log("Error:    ", err)
-        setHasErrorBooking(new Map([[roomType, true]]));
-      }
-    }
-  }
-
-  async function onClickMakeBooking(event) {
-    let roomType = event.target.getAttribute("roomType");
-    let roomPrice = event.target.getAttribute("roomPrice");
-
-    // reset error message
-    setHasErrorBooking(new Map());
-
-    // reset error date range
-    setHasErrorDateRange(new Map());
-    
-    // reset room booked message
-    setBookedRoomId(new Map());
-
-    if (startDate.getTime() >= endDate.getTime()) {
-      setHasErrorDateRange(new Map([[roomType, true]]));
-      return;
-    }
-
-    const roomId = await makeBooking(roomType, roomPrice);
-
-    // set room booked message
-    const newBookings = new Map(bookedRoomId);
-    newBookings.set(roomType, roomId);
-    setBookedRoomId(newBookings);
   }
 
   async function rateCustomer() {
     if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const signer = provider.getSigner()
-      const a = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
-      const rating = new ethers.Contract(contractsInfo.reps[0].reputationContractAddress, Reputation.abi, signer)
+      const hotelContract = await getSignerHotelContract(contractAddress);
+      const reputationContract = await getSignerReputationContract();
       try {
-        const customerAddress = await a.getCustomerAdressByDate(customerDate.getTime(), roomNumber)
+        const customerAddress = await hotelContract.getCustomerAdressByDate(customerDate.getTime(), roomNumber)
         if(customerAddress !== "0x0000000000000000000000000000000000000000"){
-          const rate = await rating.submitRating(customerAddress, ratingNumerical)
+          const rate = await reputationContract.submitRating(customerAddress, ratingNumerical)
           await rate.wait()
         }
         else {
@@ -290,57 +208,30 @@ function HotelAdminPage({ contractAddress }) {
 
   async function addRoom() {
     if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const signer = provider.getSigner()
-      const a = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
-      try {
-        if(isOwner){
-          const addRoom = await a.addRoom(roomTypeToAdd, roomPriceToAdd, roomNumberToAdd);
-          await addRoom.wait()
-        }
-        else {
+        const hotelContract = await getSignerHotelContract(contractAddress);
+        try {
+          if(isOwner) {
+            const addRoom = await hotelContract.addRoom(roomTypeToAdd, roomPriceToAdd, roomNumberToAdd);
+            await addRoom.wait();
+          }
+          else {
             setHasErrorAddingRoom(true);
+          }
+        } catch (err) {
+          console.log("Error:    ", err);
         }
-      } catch (err) {
-        console.log("Error:    ", err)
-      }
     }    
   }
 
   async function checkIsOwner() {
     if (typeof window.ethereum !== 'undefined') {
-      const provider = new ethers.providers.Web3Provider(window.ethereum)
-      const signer = provider.getSigner()
-      const a = new ethers.Contract(contractAddress, HotelBooking.abi, signer)
+      const hotelContract = await getSignerHotelContract(contractAddress);
       try {
-        const isOwner = await a.isOwner()
-        return isOwner;
+        return await hotelContract.isOwner();
       } catch (err) {
         console.log("Error:    ", err)
       }
     }    
-  }
-
-  function getCurrentDate() {
-    var now = new Date();
-    var month = (now.getMonth() + 1);               
-    var day = now.getDate();
-    if (month < 10) 
-        month = "0" + month;
-    if (day < 10) 
-        day = "0" + day;
-    return now.getFullYear() + '-' + month + '-' + day;
-  }
-
-  function changeStartDate(x) {
-    setHasErrorBooking(new Map());
-    setHasErrorDateRange(new Map());
-    setStartDate(new Date(x.target.value));
-  }
-
-  function changeEndDate(x) {
-    setHasErrorBooking(new Map());
-    setEndDate(new Date(x.target.value));
   }
 
   function changeCustomerDate(x) {
