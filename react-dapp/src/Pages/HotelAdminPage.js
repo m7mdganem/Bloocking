@@ -18,7 +18,7 @@ function HotelAdminPage({ contractAddress }) {
 
   window.ethereum.on('accountsChanged', function (_accounts) {
     checkIsOwner().then((isOwner2) => {
-      if (isOwner != isOwner2) {
+      if (isOwner !== isOwner2) {
         setIsOwner(isOwner);
         navigate(`/hotels/${contractAddress}`);
       }
@@ -387,11 +387,11 @@ function HotelAdminPage({ contractAddress }) {
               <th>Room Price</th>
             </tr>
               {hotelRoomsTypes && (hotelRoomsTypes.length > 0) && hotelRoomsTypes.map((roomType) => {
-                    if (hotelRoomsNumbers.get(roomType) && hotelRoomsPrices.get(roomType)) return (<tr>
+                    return (hotelRoomsNumbers.get(roomType) && hotelRoomsPrices.get(roomType)) ? (<tr>
                       <td>{roomType}</td>
                       <td>{`${hotelRoomsNumbers.get(roomType)}`}</td>
                       <td>{`${hotelRoomsPrices.get(roomType)}`}</td>
-                    </tr>)})}
+                    </tr>): ''})}
           </table> 
         </div>)}
       </div>

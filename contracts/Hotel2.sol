@@ -52,7 +52,6 @@ contract HotelBooking {
             uint roomsNumbersEnd = _roomsNumbers[i * 2 + 1];
             roomTypeToPrice[roomType] = roomPrice * (1 ether);
             for (uint j = roomsNumbersStart; j <= roomsNumbersEnd; j++) {
-                console.log("Room Id created: %s", j);
                 rooms.push(Room(j, roomType));
                 roomsMapping[j] = Room(j, roomType);
                 totalRooms++;
@@ -64,7 +63,6 @@ contract HotelBooking {
     function checkAvailability(uint checkIn, uint checkOut, string memory roomType) public view returns (uint) {
         require(checkIn < checkOut);
         for (uint i = 0; i < rooms.length; i++) {
-            console.log("checking room index: %s", i);
             if (isEqualStrings(rooms[i].roomType, roomType)) {
                 bool isOverlapping = false;
                 Booking[] memory roomBookings = bookings[rooms[i].Id];
@@ -84,11 +82,6 @@ contract HotelBooking {
 
     function makeBooking(uint checkIn, uint checkOut, string memory roomType) public payable {
         uint roomId = checkAvailability(checkIn, checkOut, roomType);
-
-        console.log("Room Id: %s", roomId);
-        console.log("Room Type: %s", roomType);
-        console.log("Room Price: %s", roomTypeToPrice[roomType]);
-        console.log("msg value: %s", msg.value);
 
         require(roomId != 0, "Rooms are not available for the specified dates.");
         require(msg.value == roomTypeToPrice[roomType], "Incorrect payment amount.");

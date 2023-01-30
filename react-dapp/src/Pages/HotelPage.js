@@ -35,7 +35,7 @@ function Hotel({ contractAddress }) {
 
   window.ethereum.on('accountsChanged', function (_accounts) {
     checkIsOwner().then((isOwner2) => {
-      if (isOwner != isOwner2) {
+      if (isOwner !== isOwner2) {
         setIsOwner(isOwner);
         navigate(`/hotels/admin/${contractAddress}`);
       }
