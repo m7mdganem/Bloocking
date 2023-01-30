@@ -1,9 +1,12 @@
 import { getSignerHotelContract, getSignerReputationContract } from '../Shared/webEtherum';
 import { useState, useEffect } from 'react';
+import { useNavigate} from "react-router-dom";
 
 import './HotelAdminPage.css';
 
 function HotelAdminPage({ contractAddress }) {
+  let navigate = useNavigate({});
+
   // Hotel info
   const [hotelName, setHotelName] = useState(undefined);
   const [hotelRoomsTypes, setHotelRoomsTypes] = useState([]);
@@ -13,10 +16,23 @@ function HotelAdminPage({ contractAddress }) {
   const [hotelTotalBookedRooms, setHotelTotalBookedRooms] = useState(0);
   const [coverPhotoLink, setCoverPhotoLink] = useState(undefined);
 
+  window.ethereum.on('accountsChanged', function (_accounts) {
+    checkIsOwner().then((isOwner2) => {
+      if (isOwner != isOwner2) {
+        setIsOwner(isOwner);
+        navigate(`/hotels/${contractAddress}`);
+      }
+    });
+  });
+
   // Add room card
     const [roomTypeToAdd, setRoomTypeToAdd] = useState();
     const [roomPriceToAdd, setRoomPriceToAdd] = useState();
     const [roomNumberToAdd, setRoomNumberToAdd] = useState();
+  
+  // Update price card
+    const [roomTypeToUpdatePrice, setRoomTypeToUpdatePrice] = useState();
+    const [roomPriceToUpdate, setRoomPriceToUpdate] = useState();
 
   // Rating
   const [rating, setRating] = useState()
@@ -25,6 +41,7 @@ function HotelAdminPage({ contractAddress }) {
   // Errors
   const [hasErrorFindingCustomer, setHasErrorFindingCustomer] = useState(false)
   const [hasErrorAddingRoom, setHasErrorAddingRoom] = useState(false)
+  const [hasErrorUpdatingPrice, setHasErrorUpdatingPrice] = useState(false)
 
   // isOwner
   const [isOwner, setIsOwner] = useState(false)
@@ -71,6 +88,7 @@ function HotelAdminPage({ contractAddress }) {
   useEffect(() => {
     getRoomsTypes().then((roomsTypes) => {
       setHotelRoomsTypes(roomsTypes);
+      setRoomTypeToUpdatePrice(roomsTypes[0]);
       getRoomsPrices(roomsTypes).then((roomsPrices) => {
         setHotelRoomsPrices(roomsPrices);
       });
@@ -213,9 +231,47 @@ function HotelAdminPage({ contractAddress }) {
           if(isOwner) {
             const addRoom = await hotelContract.addRoom(roomTypeToAdd, roomPriceToAdd, roomNumberToAdd);
             await addRoom.wait();
+
+            if(!hotelRoomsTypes.includes(roomTypeToAdd)) {
+              const newRoomsTypes = [...hotelRoomsTypes];
+              newRoomsTypes.push(roomTypeToAdd);
+              setHotelRoomsTypes(newRoomsTypes);
+            }
+
+            const newPrices = new Map(hotelRoomsPrices);
+            newPrices.set(roomTypeToAdd, roomPriceToAdd);
+            setHotelRoomsPrices(newPrices);
+
+            const newHotelTotalRooms = parseInt(hotelTotalRooms) + parseInt(roomNumberToAdd);
+            setHotelTotalRooms(newHotelTotalRooms);
+
+            const newNumberOfRooms = new Map(hotelRoomsNumbers);
+            newNumberOfRooms.set(roomTypeToAdd, parseInt(newNumberOfRooms.get(roomTypeToAdd)) + parseInt(roomNumberToAdd));
+            setHotelRoomsNumbers(newNumberOfRooms);
           }
           else {
             setHasErrorAddingRoom(true);
+          }
+        } catch (err) {
+          console.log("Error:    ", err);
+        }
+    }    
+  }
+
+  async function updateRoomPrice() {
+    if (typeof window.ethereum !== 'undefined') {
+        const hotelContract = await getSignerHotelContract(contractAddress);
+        try {
+          if(isOwner) {
+            const updateRoomPrice = await hotelContract.updateRoomPrice(roomTypeToUpdatePrice, roomPriceToUpdate);
+            await updateRoomPrice.wait();
+
+            const newPrices = new Map(hotelRoomsPrices);
+            newPrices.set(roomTypeToUpdatePrice, roomPriceToUpdate);
+            setHotelRoomsPrices(newPrices);
+          }
+          else {
+            setHasErrorUpdatingPrice(true);
           }
         } catch (err) {
           console.log("Error:    ", err);
@@ -257,6 +313,16 @@ function HotelAdminPage({ contractAddress }) {
   function changeRoomPriceToAdd(x) {
     setHasErrorAddingRoom(x.target.value < 0);
     setRoomPriceToAdd(x.target.value);
+  }
+
+  function changeRoomTypeToUpdatePrice(x) {
+    setHasErrorUpdatingPrice(false);
+    setRoomTypeToUpdatePrice(x.target.value);
+  }
+
+  function changeRoomPriceToUpdatePrice(x) {
+    setHasErrorUpdatingPrice(x.target.value < 0);
+    setRoomPriceToUpdate(x.target.value);
   }
 
   function onChangeSetRating(event) {
@@ -310,6 +376,24 @@ function HotelAdminPage({ contractAddress }) {
                 {hotelTotalBookedRooms && <span class="hotel-details">{`${hotelRoomsTypes.join(',  ')}`}</span>}
             </p>
         </div>
+
+        {hotelRoomsTypes && (hotelRoomsTypes.length > 0) && hotelRoomsNumbers.size > 0 && hotelRoomsPrices.size > 0 && 
+        (<div class="hotel-details-card">
+          <h1>Rooms Details</h1>
+          <table>
+            <tr>
+              <th>Room Type</th>
+              <th clas="number-of-rooms-col">Number Of Rooms</th>
+              <th>Room Price</th>
+            </tr>
+              {hotelRoomsTypes && (hotelRoomsTypes.length > 0) && hotelRoomsTypes.map((roomType) => {
+                    if (hotelRoomsNumbers.get(roomType) && hotelRoomsPrices.get(roomType)) return (<tr>
+                      <td>{roomType}</td>
+                      <td>{`${hotelRoomsNumbers.get(roomType)}`}</td>
+                      <td>{`${hotelRoomsPrices.get(roomType)}`}</td>
+                    </tr>)})}
+          </table> 
+        </div>)}
       </div>
 
       <div class="update-hotel">
@@ -328,7 +412,24 @@ function HotelAdminPage({ contractAddress }) {
                 {hasErrorAddingRoom && <p class="error">Please enter a valid room type and number of rooms.</p>}
             </div>
             <div>
-                <button class="submit-button" onClick={addRoom}>Submit Feedback</button>
+                <button class="submit-button" onClick={addRoom}>Submit</button>
+            </div>
+        </div>
+
+        <div class="update-card">
+            <h2>Update Room Price</h2>
+            {hotelRoomsTypes &&
+            (<select class="rooms-types-selector" onChange={changeRoomTypeToUpdatePrice}>
+                {hotelRoomsTypes.map((roomType) => <option value={roomType}>{`${roomType}`}</option>)}
+              </select>)}
+            <div>
+                <input type="text" inputmode="numeric" style={{marginTop: '16px'}} placeholder={`Current room Price: ${hotelRoomsPrices.get(roomTypeToUpdatePrice)}`} onChange={changeRoomPriceToUpdatePrice}></input>
+            </div>
+            <div>
+                {hasErrorUpdatingPrice && <p class="error">Please enter a valid room type and price.</p>}
+            </div>
+            <div>
+                <button class="submit-button" onClick={updateRoomPrice}>Submit</button>
             </div>
         </div>
       </div>

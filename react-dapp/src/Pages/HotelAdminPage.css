@@ -167,3 +167,9 @@
     font-style: italic;
     margin-bottom: 12px;
 }
+
+th, td {
+    padding-left: 100px;
+    padding-top: 10px;
+    text-align: center;
+}

@@ -21,6 +21,12 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(new Map());
   const [numberOfRooms, setNumberOfRooms] = useState(new Map());
 
+  window.ethereum.on('accountsChanged', function (_accounts) {
+    checkIsAdminForEachHotel().then((adminByHotel) => {
+      setIsAdmin(adminByHotel);
+    });
+  });
+
   useEffect(() => {
     getHotelsNames().then((hotelsNames) => {
       setHotelsNames(hotelsNames);

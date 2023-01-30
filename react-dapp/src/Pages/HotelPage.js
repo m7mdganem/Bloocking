@@ -1,10 +1,13 @@
 import { ethers } from 'ethers';
 import { useState, useEffect } from 'react';
 import { getSignerHotelContract, getSignerReputationContract } from '../Shared/webEtherum';
+import { useNavigate} from "react-router-dom";
 
 import './HotelPage.css';
 
 function Hotel({ contractAddress }) {
+  let navigate = useNavigate({});
+
   // Hotel info
   const [hotelName, setHotelName] = useState(undefined);
   const [hotelRoomsTypes, setHotelRoomsTypes] = useState([]);
@@ -29,6 +32,15 @@ function Hotel({ contractAddress }) {
 
   // booked room id
   const [bookedRoomId, setBookedRoomId] = useState(new Map())
+
+  window.ethereum.on('accountsChanged', function (_accounts) {
+    checkIsOwner().then((isOwner2) => {
+      if (isOwner != isOwner2) {
+        setIsOwner(isOwner);
+        navigate(`/hotels/admin/${contractAddress}`);
+      }
+    });
+  });
 
   useEffect(() => {
     checkIsOwner().then((isOwner) => {
