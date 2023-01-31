@@ -17,10 +17,18 @@ contract HotelBooking {
         string roomType;
     }
 
+    enum BookingStatus {
+        valid,
+        cancelled
+    }
+
     struct Booking {
+        uint bookingId;
         address guest;
+        uint roomId;
         uint checkIn;
         uint checkOut;
+        BookingStatus status;
     }
 
     mapping(uint => Room) roomsMapping;
@@ -67,8 +75,9 @@ contract HotelBooking {
                 bool isOverlapping = false;
                 Booking[] memory roomBookings = bookings[rooms[i].Id];
                 for (uint j = 0; j < roomBookings.length; j++) {
-                    if ((checkIn >= roomBookings[j].checkIn && checkIn <= roomBookings[j].checkOut) ||
-                        (checkOut >= roomBookings[j].checkIn && checkOut <= roomBookings[j].checkOut)) {
+                    if (((checkIn >= roomBookings[j].checkIn && checkIn <= roomBookings[j].checkOut) ||
+                        (checkOut >= roomBookings[j].checkIn && checkOut <= roomBookings[j].checkOut)) &&
+                        roomBookings[j].status == BookingStatus.valid) {
                             isOverlapping = true;
                         }
                 }
@@ -87,8 +96,8 @@ contract HotelBooking {
         require(msg.value == roomTypeToPrice[roomType], "Incorrect payment amount.");
 
         owner.transfer(msg.value);
-        guestsToBookings[msg.sender].push(Booking(msg.sender, checkIn, checkOut));
-        bookings[roomId].push(Booking(msg.sender, checkIn, checkOut));
+        guestsToBookings[msg.sender].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, BookingStatus.valid));
+        bookings[roomId].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, BookingStatus.valid));
         customers[msg.sender] = true;
         totalBookings++;
         emit BookingMade(roomId);
@@ -176,6 +185,44 @@ contract HotelBooking {
 
     function isEqualStrings(string memory a, string memory b) public pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
+    }
+
+    function getAllCostumersBookingsFromDate(uint dateOfRequest) public view returns(Booking[] memory) {
+        require(customers[msg.sender], "Only customers can access their bookings.");
+        Booking[] memory mybook = guestsToBookings[msg.sender];
+        Booking[] memory mybook2 = new Booking[](mybook.length);
+        uint counter = 0;
+        for(uint i = 0; i < mybook.length; i++){
+            if(mybook[i].checkIn > dateOfRequest && mybook[i].status == BookingStatus.valid){
+                mybook2[counter] = mybook[i];
+                counter++;
+            }
+        }
+        return mybook2;
+    }
+
+    function cancelBooking(uint bookingId) public {
+        require(customers[msg.sender], "Only customers can cancel their bookings.");
+        uint roomId = 0;
+        for(uint i = 0; i < guestsToBookings[msg.sender].length; i++){
+            if(guestsToBookings[msg.sender][i].bookingId == bookingId && guestsToBookings[msg.sender][i].guest == msg.sender){
+                roomId = guestsToBookings[msg.sender][i].roomId;
+                guestsToBookings[msg.sender][i].status = BookingStatus.cancelled;
+                break;
+            }
+        }
+        
+        for(uint i = 0; i < bookings[roomId].length; i++){
+            if(bookings[roomId][i].bookingId == bookingId && bookings[roomId][i].guest == msg.sender){
+                bookings[roomId][i].status = BookingStatus.cancelled;
+                break;
+            }
+        }
+
+        totalBookings--;
+
+        // Should be added after checking rate!
+        // payable(msg.sender).transfer(roomTypeToPrice[roomsMapping[roomId].roomType]);
     }
 
     fallback() external payable { }

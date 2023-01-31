@@ -15,6 +15,9 @@ function Hotel({ contractAddress }) {
   const [hotelRoomsNumbers, setHotelRoomsNumbers] = useState(new Map());
   const [coverPhotoLink, setCoverPhotoLink] = useState(undefined);
 
+  // Customers Bookings
+  const [customerBookings, setCustomerBookings] = useState([]);
+
   // Dates
   const [startDate, setStartDate] = useState()
   const [endDate, setEndDate] = useState()
@@ -59,6 +62,13 @@ function Hotel({ contractAddress }) {
   useEffect(() => {
     getCoverPhotoLink().then((coverPhotoLink) => {
       setCoverPhotoLink(coverPhotoLink);
+    });
+  // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    getAllCostumersBookingsFromDate().then((customerBookings) => {
+      setCustomerBookings(customerBookings.filter((booking) => booking.roomId._hex !== '0x00'));
     });
   // eslint-disable-next-line
   }, []);
@@ -159,11 +169,38 @@ function Hotel({ contractAddress }) {
       const hotelContract = await getSignerHotelContract(contractAddress);
       try {
         const transaction = await hotelContract.makeBooking(startDate.getTime(), endDate.getTime(), roomType, { value: ethers.utils.parseEther(roomPrice) });
-        const roomId = await transaction.wait();
-        return roomId.events[0].args.roomId;
+        const bookEvent = await transaction.wait();
+        const roomId = bookEvent.events[0].args.roomId;
+
+        const newCustomerBookings = [...(customerBookings || [])];
+        newCustomerBookings.push({
+          roomId: roomId,
+          checkIn: startDate.getTime(),
+          checkOut: endDate.getTime(),
+        });
+        setCustomerBookings(newCustomerBookings);
+
+        return roomId;
+          
       } catch (err) {
         console.log("Error:    ", err);
         setHasErrorBooking(new Map([[roomType, true]]));
+      }
+    }
+  }
+
+  async function cancelBooking(bookingId) {
+    if (typeof window.ethereum !== 'undefined') {
+      const hotelContract = await getSignerHotelContract(contractAddress);
+      try {
+        const transaction = await hotelContract.cancelBooking(bookingId);
+        await transaction.wait();
+
+        const newCustomerBookings = customerBookings.filter((booking) => booking.bookingId.toString() !== bookingId.toString());
+        setCustomerBookings(newCustomerBookings);
+          
+      } catch (err) {
+        console.log("Error:    ", err);
       }
     }
   }
@@ -197,7 +234,7 @@ function Hotel({ contractAddress }) {
   async function rateHotel() {
     if (typeof window.ethereum !== 'undefined') {
       const hotelContract = await getSignerHotelContract(contractAddress);
-      const reputationContract = getSignerReputationContract();
+      const reputationContract = await getSignerReputationContract();
       try {
         const isCustomer = await hotelContract.isCustomer();
         if(isCustomer) {
@@ -222,6 +259,25 @@ function Hotel({ contractAddress }) {
         console.log("Error:    ", err)
       }
     }    
+  }
+
+  async function getAllCostumersBookingsFromDate() {
+    const getAllCostumersBookingsFromDateAsync = async (hotelContractAddress) => {
+      if (typeof window.ethereum !== 'undefined') {
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
+        try {
+          return await hotelContract.getAllCostumersBookingsFromDate((new Date()).getTime());
+        } catch (err) {
+          console.log("Error:    ", err)
+        }
+      }
+    }
+    return await getAllCostumersBookingsFromDateAsync(contractAddress);
+  }
+
+  async function onClickCancelBooking(event) {
+    let bookingId = event.target.getAttribute("bookingId");
+    await cancelBooking(bookingId);
   }
 
   function getCurrentDate() {
@@ -278,6 +334,32 @@ function Hotel({ contractAddress }) {
         {coverPhotoLink && <img class="hotel-img" src={coverPhotoLink} alt=""></img>}
         {hotelName && <div class="hotel-name">{`${hotelName}`}</div>}
       </div>
+
+      {(customerBookings && customerBookings.length > 0) && 
+      (<div class="hotel-info-and-stats">
+        <div class="hotel-details-card">
+            <h1>Your Bookings In This Hotel</h1>
+            <table>
+            <tr>
+              <th>Room Id</th>
+              <th>check In</th>
+              <th>Check Out</th>
+              <th>Action</th>
+            </tr>
+              {customerBookings && (customerBookings.length > 0) && customerBookings.map((customerBooking) => {
+                let checkInDate = new Date();
+                checkInDate.setTime(customerBooking.checkIn);
+                let checkOutDate = new Date();
+                checkOutDate.setTime(customerBooking.checkOut);
+                    return (<tr>
+                      <td>{`${customerBooking.roomId}`}</td>
+                      <td>{`${checkInDate.toDateString()}`}</td>
+                      <td>{`${checkOutDate.toDateString()}`}</td>
+                      <td bookingId={customerBooking.bookingId} onClick={onClickCancelBooking} style={{cursor: 'pointer', color: 'blueviolet'}}>Cancel</td>
+                    </tr>)})}
+          </table> 
+          </div>
+        </div>)}
 
         <div class="rooms">
           {hotelRoomsTypes &&
