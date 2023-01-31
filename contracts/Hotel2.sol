@@ -28,6 +28,7 @@ contract HotelBooking {
         uint roomId;
         uint checkIn;
         uint checkOut;
+        uint paiedPrice;
         BookingStatus status;
     }
 
@@ -92,14 +93,18 @@ contract HotelBooking {
     function makeBooking(uint checkIn, uint checkOut, string memory roomType) public payable {
         uint roomId = checkAvailability(checkIn, checkOut, roomType);
 
+        console.log("balance before", address(this).balance);
+
         require(roomId != 0, "Rooms are not available for the specified dates.");
         require(msg.value == roomTypeToPrice[roomType], "Incorrect payment amount.");
 
-        owner.transfer(msg.value);
-        guestsToBookings[msg.sender].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, BookingStatus.valid));
-        bookings[roomId].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, BookingStatus.valid));
+        guestsToBookings[msg.sender].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, msg.value, BookingStatus.valid));
+        bookings[roomId].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, msg.value, BookingStatus.valid));
         customers[msg.sender] = true;
         totalBookings++;
+
+        console.log("balance before", address(this).balance);
+
         emit BookingMade(roomId);
     }
 
@@ -183,6 +188,10 @@ contract HotelBooking {
         return msg.sender == owner;
     }
 
+    function getBalance() public view returns(uint) {
+        return address(this).balance;
+    }
+
     function isEqualStrings(string memory a, string memory b) public pure returns (bool) {
         return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))));
     }
@@ -201,7 +210,7 @@ contract HotelBooking {
         return mybook2;
     }
 
-    function cancelBooking(uint bookingId) public {
+    function cancelBooking(uint bookingId, uint ratingsSum, uint numOfRatings) public {
         require(customers[msg.sender], "Only customers can cancel their bookings.");
         uint roomId = 0;
         for(uint i = 0; i < guestsToBookings[msg.sender].length; i++){
@@ -219,10 +228,27 @@ contract HotelBooking {
             }
         }
 
+        console.log("balance before", address(this).balance);
+
         totalBookings--;
 
-        // Should be added after checking rate!
-        // payable(msg.sender).transfer(roomTypeToPrice[roomsMapping[roomId].roomType]);
+        console.log("ratingsSum: ", ratingsSum);
+        console.log("numOfRatings: ", numOfRatings);
+        
+        // We return mony based on rate of customer
+        uint roomPrice = roomTypeToPrice[roomsMapping[roomId].roomType];
+        uint256 refund = roomPrice;
+        console.log("roomPrice: ", roomPrice);
+        if (numOfRatings != 0) {
+            payable(msg.sender).transfer(refund * (ratingsSum / numOfRatings) / 5);
+        }
+        else {
+            payable(msg.sender).transfer(refund);
+        }
+        console.log("refund: ", refund);
+        
+
+        console.log("balance before", address(this).balance);
     }
 
     fallback() external payable { }

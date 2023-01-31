@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate} from "react-router-dom";
 
 import './HotelAdminPage.css';
+import { ethers } from 'ethers';
 
 function HotelAdminPage({ contractAddress }) {
   let navigate = useNavigate({});
@@ -15,6 +16,7 @@ function HotelAdminPage({ contractAddress }) {
   const [hotelTotalRooms, setHotelTotalRooms] = useState(0);
   const [hotelTotalBookedRooms, setHotelTotalBookedRooms] = useState(0);
   const [coverPhotoLink, setCoverPhotoLink] = useState(undefined);
+  const [hotelBalance, setHotelBalance] = useState('0');
 
   window.ethereum.on('accountsChanged', function (_accounts) {
     checkIsOwner().then((isOwner2) => {
@@ -81,6 +83,13 @@ function HotelAdminPage({ contractAddress }) {
   useEffect(() => {
     getHotelTotalBookings().then((hotelTotalBookings) => {
         setHotelTotalBookedRooms(hotelTotalBookings);
+    });
+  // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    getBalance().then((balance) => {
+      setHotelBalance(ethers.utils.formatEther(balance));
     });
   // eslint-disable-next-line
   }, []);
@@ -203,6 +212,20 @@ function HotelAdminPage({ contractAddress }) {
       }
     }
     return await getCoverPhotoLinkAsync(contractAddress);
+  }
+
+  async function getBalance() {
+    const getBalanceAsync = async (hotelContractAddress) => {
+      if (typeof window.ethereum !== 'undefined') {
+        const hotelContract = await getSignerHotelContract(hotelContractAddress);
+        try {
+          return await hotelContract.getBalance();
+        } catch (err) {
+          console.log("Error:    ", err)
+        }
+      }
+    }
+    return await getBalanceAsync(contractAddress);
   }
 
   async function rateCustomer() {
@@ -369,6 +392,12 @@ function HotelAdminPage({ contractAddress }) {
             <p>
                 <span class="hotel-details-title">Total number of bookings: </span>
                 {hotelTotalBookedRooms && <span class="hotel-details">{`${hotelTotalBookedRooms}`}</span>}
+            </p>
+
+            <p>
+                <span class="hotel-details-title">Current Balance: </span>
+                <span class="hotel-details">{`${hotelBalance}`}</span>
+                <span style={{color: 'green', paddingLeft: '8px'}}>ETHER</span>
             </p>
             
             <p>

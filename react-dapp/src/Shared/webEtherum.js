@@ -21,3 +21,9 @@ export async function getSignerReputationContract() {
     const signer = provider.getSigner();
     return new ethers.Contract(contractsInfo.reps[0].reputationContractAddress, Reputation.abi, signer);
 }
+
+export async function getProviderReputationContract() {
+    await requestAccount();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    return new ethers.Contract(contractsInfo.reps[0].reputationContractAddress, Reputation.abi, provider);
+}

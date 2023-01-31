@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useState, useEffect } from 'react';
-import { getSignerHotelContract, getSignerReputationContract } from '../Shared/webEtherum';
+import { getSignerHotelContract, getSignerReputationContract, getProviderReputationContract } from '../Shared/webEtherum';
 import { useNavigate} from "react-router-dom";
 
 import './HotelPage.css';
@@ -177,6 +177,7 @@ function Hotel({ contractAddress }) {
           roomId: roomId,
           checkIn: startDate.getTime(),
           checkOut: endDate.getTime(),
+          paiedPrice: roomPrice
         });
         setCustomerBookings(newCustomerBookings);
 
@@ -189,11 +190,21 @@ function Hotel({ contractAddress }) {
     }
   }
 
-  async function cancelBooking(bookingId) {
+  async function cancelBooking(bookingId, roomPrice) {
     if (typeof window.ethereum !== 'undefined') {
       const hotelContract = await getSignerHotelContract(contractAddress);
       try {
-        const transaction = await hotelContract.cancelBooking(bookingId);
+        const getCustomerRatingAsync = async (customerAddress) => {
+            const reputationContract = await getProviderReputationContract();
+            try {
+              const rating = await reputationContract.getRating(customerAddress);
+              return rating;
+            } catch (err) {
+              console.log("Error:    ", err)
+            }
+        }
+        const [ratingsSum, numOfRatings] = await getCustomerRatingAsync(await (new ethers.providers.Web3Provider(window.ethereum)).getSigner().getAddress());
+        const transaction = await hotelContract.cancelBooking(bookingId, ratingsSum, numOfRatings);
         await transaction.wait();
 
         const newCustomerBookings = customerBookings.filter((booking) => booking.bookingId.toString() !== bookingId.toString());
@@ -277,7 +288,8 @@ function Hotel({ contractAddress }) {
 
   async function onClickCancelBooking(event) {
     let bookingId = event.target.getAttribute("bookingId");
-    await cancelBooking(bookingId);
+    let roomPrice = event.target.getAttribute("roomPrice");
+    await cancelBooking(bookingId, roomPrice);
   }
 
   function getCurrentDate() {
@@ -355,7 +367,7 @@ function Hotel({ contractAddress }) {
                       <td>{`${customerBooking.roomId}`}</td>
                       <td>{`${checkInDate.toDateString()}`}</td>
                       <td>{`${checkOutDate.toDateString()}`}</td>
-                      <td bookingId={customerBooking.bookingId} onClick={onClickCancelBooking} style={{cursor: 'pointer', color: 'blueviolet'}}>Cancel</td>
+                      <td bookingId={customerBooking.bookingId} roomPrice={customerBooking.paiedPrice} onClick={onClickCancelBooking} style={{cursor: 'pointer', color: 'blueviolet'}}>Cancel</td>
                     </tr>)})}
           </table> 
           </div>
