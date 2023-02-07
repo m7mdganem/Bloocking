@@ -17,6 +17,7 @@ function HotelAdminPage({ contractAddress }) {
   const [hotelTotalBookedRooms, setHotelTotalBookedRooms] = useState(0);
   const [coverPhotoLink, setCoverPhotoLink] = useState(undefined);
   const [hotelBalance, setHotelBalance] = useState('0');
+  const [amountToTransfer, setAmountToTransfer] = useState('0');
 
   window.ethereum.on('accountsChanged', function (_accounts) {
     checkIsOwner().then((isOwner2) => {
@@ -44,6 +45,7 @@ function HotelAdminPage({ contractAddress }) {
   const [hasErrorFindingCustomer, setHasErrorFindingCustomer] = useState(false)
   const [hasErrorAddingRoom, setHasErrorAddingRoom] = useState(false)
   const [hasErrorUpdatingPrice, setHasErrorUpdatingPrice] = useState(false)
+  const [hasErrorTransfering, setHasErrorTransfering] = useState(false)
 
   // isOwner
   const [isOwner, setIsOwner] = useState(false)
@@ -89,6 +91,7 @@ function HotelAdminPage({ contractAddress }) {
 
   useEffect(() => {
     getBalance().then((balance) => {
+      setAmountToTransfer(ethers.utils.formatEther(balance) / 2);
       setHotelBalance(ethers.utils.formatEther(balance));
     });
   // eslint-disable-next-line
@@ -255,12 +258,6 @@ function HotelAdminPage({ contractAddress }) {
             const addRoom = await hotelContract.addRoom(roomTypeToAdd, roomPriceToAdd, roomNumberToAdd);
             await addRoom.wait();
 
-            if(!hotelRoomsTypes.includes(roomTypeToAdd)) {
-              const newRoomsTypes = [...hotelRoomsTypes];
-              newRoomsTypes.push(roomTypeToAdd);
-              setHotelRoomsTypes(newRoomsTypes);
-            }
-
             const newPrices = new Map(hotelRoomsPrices);
             newPrices.set(roomTypeToAdd, roomPriceToAdd);
             setHotelRoomsPrices(newPrices);
@@ -269,8 +266,14 @@ function HotelAdminPage({ contractAddress }) {
             setHotelTotalRooms(newHotelTotalRooms);
 
             const newNumberOfRooms = new Map(hotelRoomsNumbers);
-            newNumberOfRooms.set(roomTypeToAdd, parseInt(newNumberOfRooms.get(roomTypeToAdd)) + parseInt(roomNumberToAdd));
+            newNumberOfRooms.set(roomTypeToAdd, parseInt(newNumberOfRooms.get(roomTypeToAdd)  ?? 0) + parseInt(roomNumberToAdd));
             setHotelRoomsNumbers(newNumberOfRooms);
+
+            if(!hotelRoomsTypes.includes(roomTypeToAdd)) {
+              const newRoomsTypes = [...hotelRoomsTypes];
+              newRoomsTypes.push(roomTypeToAdd);
+              setHotelRoomsTypes(newRoomsTypes);
+            }
           }
           else {
             setHasErrorAddingRoom(true);
@@ -297,6 +300,31 @@ function HotelAdminPage({ contractAddress }) {
             setHasErrorUpdatingPrice(true);
           }
         } catch (err) {
+          console.log("Error:    ", err);
+        }
+    }    
+  }
+
+  async function trnsferAmountToOwner() {
+    if (amountToTransfer > hotelBalance / 2) {
+      alert("You can't transfer more than 50% of your balance");
+      return;
+    }
+
+    if (typeof window.ethereum !== 'undefined') {
+        const hotelContract = await getSignerHotelContract(contractAddress);
+        try {
+          if(isOwner) {
+            const transferToOwner = await hotelContract.transferToOwner(ethers.utils.parseEther(amountToTransfer));
+            await transferToOwner.wait();
+
+            setHotelBalance(hotelBalance - amountToTransfer)
+          }
+          else {
+            setHasErrorTransfering(true);
+          }
+        } catch (err) {
+          setHasErrorTransfering(true);
           console.log("Error:    ", err);
         }
     }    
@@ -346,6 +374,11 @@ function HotelAdminPage({ contractAddress }) {
   function changeRoomPriceToUpdatePrice(x) {
     setHasErrorUpdatingPrice(x.target.value < 0);
     setRoomPriceToUpdate(x.target.value);
+  }
+
+  function changeAmountToTransfer(x) {
+    setHasErrorTransfering(x.target.value < 0);
+    setAmountToTransfer(x.target.value);
   }
 
   function onChangeSetRating(event) {
@@ -461,7 +494,21 @@ function HotelAdminPage({ contractAddress }) {
                 <button class="submit-button" onClick={updateRoomPrice}>Submit</button>
             </div>
         </div>
+
+        <div class="update-card">
+            <h2>Transfer Money To Owner Account</h2>
+            <div>
+                <input type="text" inputmode="numeric" style={{marginTop: '16px'}} placeholder={`Enter amount to transfer: ${amountToTransfer}`} onChange={changeAmountToTransfer}></input>
+            </div>
+            <div>
+                {hasErrorTransfering && <p class="error">Can not transfer money.</p>}
+            </div>
+            <div>
+                <button class="submit-button" onClick={trnsferAmountToOwner}>Transfer</button>
+            </div>
+        </div>
       </div>
+      
 
         <div class="rating">
           <div class="card-wrapper">

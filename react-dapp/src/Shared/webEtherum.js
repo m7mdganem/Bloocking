@@ -15,6 +15,13 @@ export async function getSignerHotelContract(hotelContractAddress) {
     return new ethers.Contract(hotelContractAddress, HotelBooking.abi, signer);
 }
 
+export async function getTransactionCount() {
+    await requestAccount();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    return await signer.getTransactionCount();
+}
+
 export async function getSignerReputationContract() {
     await requestAccount();
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -26,4 +33,10 @@ export async function getProviderReputationContract() {
     await requestAccount();
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     return new ethers.Contract(contractsInfo.reps[0].reputationContractAddress, Reputation.abi, provider);
+}
+
+export async function getProviderAddress() {
+    await requestAccount();
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    return await provider.getSigner().getAddress();
 }

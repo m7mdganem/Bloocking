@@ -1,3 +1,7 @@
+.App {
+  background-color: rgb(17, 13, 18);
+}
+
 .App-header {
   display: flex;
   align-items: center;
@@ -15,18 +19,38 @@
 }
 
 .header1 {
-  color: rgb(37, 37, 173);
+  color: rgb(255, 255, 255);
   font-size: 70px;
+  font-weight: 1000;
+  text-shadow: 1px 1px 2px rgb(255, 255, 255), 0 0 1em rgb(63, 63, 250), 0 0 0.2em rgb(63, 63, 250), 0 0 5em rgb(63, 63, 250);
+  cursor: default;
 }
 
 .header2 {
-  color: rgb(63, 63, 250);
+  color: rgb(255, 255, 255);
   font-size: 100px;
+  font-weight: 1000;
+  text-shadow: 1px 1px 2px rgb(255, 255, 255), 0 0 1em rgb(63, 63, 250), 0 0 0.2em rgb(63, 63, 250), 0 0 5em rgb(63, 63, 250);
+  cursor: default;
 }
 
 .header3 {
-  color: rgb(37, 37, 173);
+  color: rgb(255, 255, 255);
   font-size: 70px;
+  font-weight: 1000;
+  text-shadow: 1px 1px 2px rgb(255, 255, 255), 0 0 1em rgb(63, 63, 250), 0 0 0.2em rgb(63, 63, 250), 0 0 5em rgb(63, 63, 250);
+  cursor: default;
+}
+
+.description-1 {
+  display: flex;
+  justify-content: center;
+  font-size: 33px;
+  height: 70px;
+  color: rgb(255, 255, 255);
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgb(255, 255, 255), 0 0 1em rgb(63, 63, 250), 0 0 0.2em rgb(63, 63, 250), 0 0 5em rgb(63, 63, 250);
+  cursor: default;
 }
 
 .description {
@@ -34,6 +58,10 @@
   justify-content: center;
   font-size: 20px;
   margin-bottom: 60px;
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+  text-shadow: -1px -1px 0 rgb(255, 255, 255), 1px 1px 0 rgb(255, 255, 255), 1px -1px 0 rgb(255, 255, 255), -1px 1px 0 rgb(255, 255, 255);
+  cursor: default;
 }
 
 .hotels {
@@ -44,12 +72,23 @@
 }
 
 .hotel-button {
+  background-color: rgb(92, 91, 91);
   cursor: pointer;
   padding-left: 2px;
-  width: 500px;
-  height: 620px;
+  width: 420px;
+  height: 650px;
   font-size: 24px;
-  margin: 20px;
+  margin: 50px;
+  border-radius: 16px;
+  color: white;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgb(37, 37, 173), 0 0 1em rgb(0, 0, 0), 0 0 0.2em rgb(0, 0, 0), 0 0 5em rgb(0, 0, 0);
+  border: none;
+}
+
+.hotel-button:hover {
+  background-color: rgb(62, 62, 62);
+  box-shadow: 1px 1px 2px rgb(255, 255, 255), 0 0 1em rgb(255, 255, 255), 0 0 0.2em rgb(255, 255, 255), 0 0 3em rgb(255, 255, 255);
 }
 
 .hotel-img {
@@ -57,7 +96,6 @@
   height: 400px;
   margin-top: 12px;
   object-fit: cover;
-  border-radius: 6px;
 }
 
 .star {
@@ -67,9 +105,13 @@
 
 .checked {
   color: rgb(230, 150, 2);
+  text-shadow: none;
+
 }
 
 .Hotel-information {
   margin-top: 12px;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 20;
+  margin-bottom: 16px;
 }

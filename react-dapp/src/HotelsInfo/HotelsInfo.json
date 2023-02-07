@@ -2,7 +2,7 @@
     "hotels": [
         {
             "name": "METROPOLITAN",
-            "address": "Address 1",
+            "address": "Trumpeldor St 11, Tel Aviv-Yafo",
             "available": true,
             "coverPhotoLink": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/356914115.jpg?k=fb7e0141c2aae13bc14021b2f85b7afe529de78bcf787e59ec873b422db7d791&o=&hp=1",
             "rooms": [
@@ -28,7 +28,7 @@
         },
         {
             "name": "Hotel Presidente",
-            "address": "Address 2",
+            "address": "Av. de Filipinas, 10, 03503 Benidorm, Alicante, Spain",
             "available": true,
             "coverPhotoLink": "https://media-cdn.tripadvisor.com/media/photo-s/16/1a/ea/54/hotel-presidente-4s.jpg",
             "rooms": [
@@ -102,7 +102,7 @@
         },
         {
             "name": "Hotel TIMISOARA",
-            "address": "Address 3",
+            "address": "Strada Mărășești 1-3, Timișoara 300086, Romania",
             "available": true,
             "coverPhotoLink": "https://imgcy.trivago.com/c_fill,d_dummy.jpeg,e_sharpen:60,f_auto,h_627,q_auto,w_1200/itemimages/32/04/320496_v4.jpeg",
             "rooms": [
@@ -158,7 +158,7 @@
         },
         {
             "name": "E Central",
-            "address": "Address 4",
+            "address": "1020 S Figueroa St, Los Angeles, CA 90015, USA",
             "available": true,
             "coverPhotoLink": "https://www.il.kayak.com/rimg/himg/ab/64/d9/expediav2-38713-6584af-750938.jpg?width=720&height=576&crop=true",
             "rooms": [
@@ -232,7 +232,7 @@
         },
         {
             "name": "ANATOLE HOTEL",
-            "address": "Address 5",
+            "address": "2201 N Stemmons Fwy, Dallas, TX 75207, USA",
             "available": true,
             "coverPhotoLink": "https://pix10.agoda.net/hotelImages/10535978/-1/8329264835dfad1ca856365749af947b.jpg?ca=10&ce=1&s=1024x768",
             "rooms": [
@@ -289,6 +289,84 @@
                     "price": 3,
                     "From": 743,
                     "To": 761
+                }
+            ]
+        },
+        {
+            "name": "HILTON GARDEN INN",
+            "address": "Çamlica, Anadolu Blv No:26, 06200 Yenimahalle/Ankara, Türkiye",
+            "available": true,
+            "coverPhotoLink": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/64/3e/b9/exterior.jpg?w=700&h=-1&s=1",
+            "rooms": [
+                {
+                    "type": "Standard",
+                    "price": 1,
+                    "From": 1,
+                    "To": 265
+                },
+                {
+                    "type": "Deluxe",
+                    "price": 2,
+                    "From": 266,
+                    "To": 290
+                },
+                {
+                    "type": "Suite",
+                    "price": 3,
+                    "From": 291,
+                    "To": 300
+                }
+            ]
+        },
+        {
+            "name": "MARRIOTT HOTEL",
+            "address": "Dead Sea Rd., Sweimeh 11190, Jordan",
+            "available": true,
+            "coverPhotoLink": "https://cf.bstatic.com/xdata/images/hotel/max1024x768/9102791.jpg?k=cd8ab2f909a39eebc35dbf21af2fa56d7ea48adce2459ea1a7d883cc67bc977a&o=&hp=1",
+            "rooms": [
+                {
+                    "type": "Classic",
+                    "price": 1,
+                    "From": 1,
+                    "To": 245
+                },
+                {
+                    "type": "Superior",
+                    "price": 2,
+                    "From": 246,
+                    "To": 293
+                },
+                {
+                    "type": "Premium",
+                    "price": 175,
+                    "From": 294,
+                    "To": 333
+                }
+            ]
+        },
+        {
+            "name": "HYATT REGENCY",
+            "address": "Marina Village, Aqaba 77110, Jordan",
+            "available": true,
+            "coverPhotoLink": "https://pix10.agoda.net/hotelImages/6798878/0/d1215d9dd73e0e40499ef51fcacb8a2b.jpg?ce=0&s=1024x768",
+            "rooms": [
+                {
+                    "type": "Standard King",
+                    "price": 2,
+                    "From": 1,
+                    "To": 136
+                },
+                {
+                    "type": "Deluxe King",
+                    "price": 3,
+                    "From": 137,
+                    "To": 200
+                },
+                {
+                    "type": "Suite King",
+                    "price": 4,
+                    "From": 201,
+                    "To": 240
                 }
             ]
         }

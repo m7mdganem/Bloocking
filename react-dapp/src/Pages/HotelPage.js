@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { useState, useEffect } from 'react';
-import { getSignerHotelContract, getSignerReputationContract, getProviderReputationContract } from '../Shared/webEtherum';
+import { getSignerHotelContract, getSignerReputationContract, getProviderReputationContract, getProviderAddress } from '../Shared/webEtherum';
 import { useNavigate} from "react-router-dom";
 
 import './HotelPage.css';
@@ -36,6 +36,9 @@ function Hotel({ contractAddress }) {
   // booked room id
   const [bookedRoomId, setBookedRoomId] = useState(new Map())
 
+  // user rating
+  const [userRating, setUserRating] = useState(5)
+
   window.ethereum.on('accountsChanged', function (_accounts) {
     checkIsOwner().then((isOwner2) => {
       if (isOwner !== isOwner2) {
@@ -44,6 +47,13 @@ function Hotel({ contractAddress }) {
       }
     });
   });
+
+  useEffect(() => {
+    getUserRating().then((rating) => {
+      setUserRating(rating);
+    });
+  // eslint-disable-next-line
+  }, []);
 
   useEffect(() => {
     checkIsOwner().then((isOwner) => {
@@ -164,10 +174,27 @@ function Hotel({ contractAddress }) {
     return await getCoverPhotoLinkAsync(contractAddress);
   }
 
+  async function getUserRating() {
+    if (typeof window.ethereum !== 'undefined') {
+      const rate = await getProviderReputationContract();
+      const address = await getProviderAddress();
+      try {
+        const rating = await rate.getRating(address);
+        if (rating[1]._hex === "0x00") {
+          return 5;
+        }
+        return rating[0]._hex / rating[1]._hex;
+      } catch (err) {
+        console.log("Error:    ", err)
+      }
+    }
+  }
+
   async function makeBooking(roomType, roomPrice) {
     if (typeof window.ethereum !== 'undefined') {
       const hotelContract = await getSignerHotelContract(contractAddress);
       try {
+        // const currentNonce = await getTransactionCount();
         const transaction = await hotelContract.makeBooking(startDate.getTime(), endDate.getTime(), roomType, { value: ethers.utils.parseEther(roomPrice) });
         const bookEvent = await transaction.wait();
         const roomId = bookEvent.events[0].args.roomId;
@@ -277,7 +304,10 @@ function Hotel({ contractAddress }) {
       if (typeof window.ethereum !== 'undefined') {
         const hotelContract = await getSignerHotelContract(hotelContractAddress);
         try {
-          return await hotelContract.getAllCostumersBookingsFromDate((new Date()).getTime());
+          return await hotelContract.getAllCostumersBookingsFromDate((new Date(
+            (((new Date().getMonth() + 1) < 10 ? "0" + (new Date().getMonth() + 1) : (new Date().getMonth() + 1)) + '/' +
+             (new Date().getDate() < 10 ? "0" + new Date().getDate() : new Date().getDate()) + '/' + new Date().getFullYear())
+          )).getTime());
         } catch (err) {
           console.log("Error:    ", err)
         }
@@ -289,13 +319,18 @@ function Hotel({ contractAddress }) {
   async function onClickCancelBooking(event) {
     let bookingId = event.target.getAttribute("bookingId");
     let roomPrice = event.target.getAttribute("roomPrice");
+
+    if (userRating !== 5) {
+      alert(`Your current rating is: ${userRating}, you will get a refund of ${userRating / 5 * ethers.utils.formatEther(roomPrice)}.`);
+    }
+    
     await cancelBooking(bookingId, roomPrice);
   }
 
   function getCurrentDate() {
-    var now = new Date();
-    var month = (now.getMonth() + 1);               
-    var day = now.getDate();
+    const now = new Date();
+    let month = (now.getMonth() + 1);               
+    let day = now.getDate();
     if (month < 10) 
         month = "0" + month;
     if (day < 10) 

@@ -93,8 +93,6 @@ contract HotelBooking {
     function makeBooking(uint checkIn, uint checkOut, string memory roomType) public payable {
         uint roomId = checkAvailability(checkIn, checkOut, roomType);
 
-        console.log("balance before", address(this).balance);
-
         require(roomId != 0, "Rooms are not available for the specified dates.");
         require(msg.value == roomTypeToPrice[roomType], "Incorrect payment amount.");
 
@@ -102,8 +100,6 @@ contract HotelBooking {
         bookings[roomId].push(Booking(totalBookings, msg.sender, roomId, checkIn, checkOut, msg.value, BookingStatus.valid));
         customers[msg.sender] = true;
         totalBookings++;
-
-        console.log("balance before", address(this).balance);
 
         emit BookingMade(roomId);
     }
@@ -228,27 +224,22 @@ contract HotelBooking {
             }
         }
 
-        console.log("balance before", address(this).balance);
-
         totalBookings--;
-
-        console.log("ratingsSum: ", ratingsSum);
-        console.log("numOfRatings: ", numOfRatings);
         
         // We return mony based on rate of customer
         uint roomPrice = roomTypeToPrice[roomsMapping[roomId].roomType];
         uint256 refund = roomPrice;
-        console.log("roomPrice: ", roomPrice);
         if (numOfRatings != 0) {
             payable(msg.sender).transfer(refund * (ratingsSum / numOfRatings) / 5);
         }
         else {
             payable(msg.sender).transfer(refund);
         }
-        console.log("refund: ", refund);
-        
+    }
 
-        console.log("balance before", address(this).balance);
+    function transferToOwner(uint amount) public {
+        require(msg.sender == owner, "Only owner can transfer money to owner.");
+        payable(owner).transfer(amount);
     }
 
     fallback() external payable { }

@@ -223,8 +223,11 @@ function App() {
           <h1 class="header2">.</h1>
           <h1 class="header3">com</h1>
         </div>
-        <div className='description'>
+        <div className='description-1'>
           <h4>Booking Based On Block Chain</h4>
+        </div>
+        <div className='description'>
+          <h4>By Mohammad Ghanem & Mohammad Amer</h4>
         </div>
       </div>
 
